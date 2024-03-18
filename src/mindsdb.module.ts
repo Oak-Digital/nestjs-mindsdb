@@ -60,6 +60,7 @@ export class MindsdbModule {
     ];
 
     return {
+      global: true,
       module: MindsdbModule,
       imports: [
         ...(options.imports || []),
