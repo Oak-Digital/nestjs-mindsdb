@@ -6,6 +6,7 @@
   "scripts": {
     "test": "jest",
     "test-juint": "mocha --opts .mocharc --reporter mocha-junit-reporter",
+    "typecheck": "tsc --noEmit",
     "prebuild": "rimraf dist",
     "build": "tsc",
     "release": "bumpp"
