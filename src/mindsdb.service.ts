@@ -15,25 +15,31 @@ import {
 import { PredictMindsdbDto } from "./dto/predict-mindsdb.dto";
 import { FinetuneMindsdbDto } from "./dto/finetune-mindsdb.dto";
 import { MINDSDB_MODULE_OPTIONS } from "./mindsdb.constants";
-import { MindsdbModuleOptions } from "./interfaces/mindsdb-options.interface";
+import { MindsdbModuleConnectionOptions, MindsdbModuleOptions } from "./interfaces/mindsdb-options.interface";
 
 @Injectable()
 export class MindsdbService implements OnModuleInit {
-  private project: string;
+  private readonly project: string;
   private readonly models: Map<string, IModel>;
-  private projectAsIntegrationPrefix: boolean;
+  private readonly projectAsIntegrationPrefix: boolean;
+  private readonly connectionOtions: MindsdbModuleConnectionOptions;
   private readonly logger = new Logger(MindsdbService.name);
   constructor(
     @Inject(MINDSDB_MODULE_OPTIONS) private readonly options: MindsdbModuleOptions,
   ) {
-    this.project = options.project;
+    this.project = options.project ?? 'mindsdb';
     this.projectAsIntegrationPrefix = options.projectAsIntegrationPrefix ?? false;
-    this.models = options.models;
+    this.models = options.models ?? new Map();
+    this.connectionOtions = options.connection ?? {
+      host: "http://localhost:47334",
+      user: 'mindsdb',
+      password: 'mindsdb',
+    };
   }
 
   async onModuleInit() {
     try {
-      const { host, user, password, managed } = this.options.connection;
+      const { host, user, password, managed } = this.connectionOtions;
       await this.Client.connect({
         host,
         user,
