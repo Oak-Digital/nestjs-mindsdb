@@ -5,10 +5,41 @@ A NestJS module for integrating with MindsDB. This allows for easy model managem
 ## Installation
 
 ```bash
-npm install nestjs-mindsdb
+# npm
+npm install @oak-digital/nestjs-mindsdb
+# pnpm
+pnpm install @oak-digital/nestjs-mindsdb
 ```
 
-## Defining Models
+## Setup
+
+This module works by defining your models in your code. It is currently not possible to create models dynamically.
+
+In your module, you should import this module with the `forRoot` method.
+
+```typescript
+// app.module.ts
+@Module({
+  imports: [
+    MindsdbModule.forRoot({
+      // The predefined models to use
+      models: myModels,
+      // The default project to use, 'mindsdb' by default
+      project: 'mindsdb',
+      // If the connection is omitted,
+      // it will use the following default connection options
+      connection: {
+        host: 'http://127.0.0.1:47334',
+        user: 'mindsdb',
+        password: '',
+        managed: false,
+      },
+    }),
+  ],
+})
+```
+
+### Defining Models
 
 Models in MindsDB are described through the `IModel` interface. Here's how you can define your models:
 
@@ -82,22 +113,6 @@ Placeholders such as `$CUSTOMER_ID$` and `$DATE$` can be used in the model defin
 
 ## Usage
 
-### Setting up the Controller
-
-To expose your models through a RESTful API, extend the `AbstractMindsdbController` and use NestJS's `@Controller` decorator. This controller will automatically have all the endpoints corresponding to the methods in the `AbstractMindsdbController`.
-
-```typescript
-import { Controller } from '@nestjs/common';
-import { MindsdbService } from 'nestjs-mindsdb';
-import { AbstractMindsdbController } from 'nestjs-mindsdb';
-
-@Controller('mindsdb')
-export class MindsdbController extends AbstractMindsdbController {
-  constructor(mindsdbService: MindsdbService) {
-    super(mindsdbService);
-  }
-}
-```
 
 ### Using the MindsdbService
 
@@ -105,6 +120,8 @@ The `MindsdbService` provides several methods that correspond to different opera
 If parameters are not provided will use the one's defined on the IModel object for each.
 
 #### 1. Create a Model
+
+The models are not created by default, so you need to create them with the `create` method
 
 ```typescript
 const createDto = new CreateMindsdbDto();
@@ -168,20 +185,23 @@ mindsdbService.findOne('balance_auto');
 mindsdbService.remove('balance_auto');
 ```
 
+### Setting up the Controller
+
+To expose your models through a RESTful API, extend the `AbstractMindsdbController` and use NestJS's `@Controller` decorator. This controller will automatically have all the endpoints corresponding to the methods in the `AbstractMindsdbController`.
+
+```typescript
+import { Controller } from '@nestjs/common';
+import { MindsdbService } from '@oak-digital/nestjs-mindsdb';
+import { AbstractMindsdbController } from '@oak-digital/nestjs-mindsdb';
+
+@Controller('mindsdb')
+export class MindsdbController extends AbstractMindsdbController {
+  constructor(mindsdbService: MindsdbService) {
+    super(mindsdbService);
+  }
+}
+```
+
 ---
 
 Remember to adjust any paths, references, and examples according to your project structure and requirements.
-
-## Configuration
-
-To utilize MindsDB within your NestJS application, you have to set up the module. Given the nature of this module being dynamic, configurations are essential for its proper functioning. Here's a basic setup:
-
-```typescript
-import { MindsdbModule } from 'nestjs-mindsdb';
-import { Models } from './path-to-your-models-definition';
-
-@Module({
-  imports: [MindsdbModule.forRoot(Models)],
-})
-export class AppModule {}
-```
